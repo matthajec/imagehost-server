@@ -4,6 +4,8 @@ const upload = require('../util/s3');
 
 exports.postImage = async (req, res, next) => {
   upload(req, res, (err) => {
+    console.log(req.file);
+
     if (err) {
       console.log(err);
       switch (err.code) {
@@ -24,6 +26,7 @@ exports.postImage = async (req, res, next) => {
             message: 'An unknown error occured'
           });
       }
+
 
     } else {
       res.status(200).json({
