@@ -1,10 +1,29 @@
-const multer = require('multer');
+const fetch = require('node-fetch');
 
 const upload = require('../util/s3');
 
 exports.postImage = async (req, res, next) => {
-  upload(req, res, (err) => {
-    console.log(req.file);
+  console.log('Hello');
+
+  upload(req, res, async (err) => {
+
+    // this is for heroku, 
+    const forwardedFor = req.header('X-Forwarded-For').split(',');
+    const realIp = forwardedFor[forwardedFor.length - 1];
+
+    const cResponse = await fetch(
+      `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.CAPTCHA_SECRET_KEY}&response=${encodeURIComponent(req.body.cToken)}&remoteip=${encodeURIComponent(realIp)}`
+    );
+    const cData = await cResponse.json();
+
+    console.log(cData);
+
+    if (cResponse.status !== 200 || cData.success === false) {
+      return res.status(422).json({
+        message: 'failed captcha',
+        error: cData
+      });
+    }
 
     if (err) {
       switch (err.code) {
