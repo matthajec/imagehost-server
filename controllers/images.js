@@ -3,11 +3,10 @@ const fetch = require('node-fetch');
 const upload = require('../util/s3');
 
 exports.postImage = async (req, res, next) => {
-  console.log('Hello');
 
   upload(req, res, async (err) => {
 
-    // this is for heroku, 
+    // this is for heroku, they say last item in X-Forwarded-For is the real orgininating ip address
     const forwardedFor = req.header('X-Forwarded-For').split(',');
     const realIp = forwardedFor[forwardedFor.length - 1];
 
@@ -15,8 +14,6 @@ exports.postImage = async (req, res, next) => {
       `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.CAPTCHA_SECRET_KEY}&response=${encodeURIComponent(req.body.cToken)}&remoteip=${encodeURIComponent(realIp)}`
     );
     const cData = await cResponse.json();
-
-    console.log(cData);
 
     if (cResponse.status !== 200 || cData.success === false) {
       return res.status(422).json({
