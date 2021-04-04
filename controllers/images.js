@@ -6,9 +6,17 @@ exports.postImage = async (req, res, next) => {
 
   upload(req, res, async (err) => {
 
-    // this is for heroku, they say last item in X-Forwarded-For is the real orgininating ip address
+    // this is for heroku, the last item in X-Forwarded-For is the real orgininating ip address
     const forwardedFor = req.header('X-Forwarded-For').split(',');
     const realIp = forwardedFor[forwardedFor.length - 1];
+
+    console.log(realIp);
+
+    if (!req.body.cToken) {
+      return res.status(422).json({
+        message: 'no captcha token provided',
+      });
+    }
 
     const cResponse = await fetch(
       `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.CAPTCHA_SECRET_KEY}&response=${encodeURIComponent(req.body.cToken)}&remoteip=${encodeURIComponent(realIp)}`
@@ -18,7 +26,6 @@ exports.postImage = async (req, res, next) => {
     if (cResponse.status !== 200 || cData.success === false) {
       return res.status(422).json({
         message: 'failed captcha',
-        error: cData
       });
     }
 
