@@ -10,7 +10,11 @@ exports.postImage = async (req, res, next) => {
     const forwardedFor = req.header('X-Forwarded-For').split(',');
     const realIp = forwardedFor[forwardedFor.length - 1];
 
+    console.log('Real Ip:');
     console.log(realIp);
+
+    console.log('X-Forwarded-For:');
+    console.log(req.header('X-Forwarded-For'));
 
     if (!req.body.cToken) {
       return res.status(422).json({
