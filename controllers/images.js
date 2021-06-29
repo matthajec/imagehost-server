@@ -9,7 +9,7 @@ exports.postImage = async (req, res, next) => {
     const forwardedFor = req.header('X-Forwarded-For').split(',');
     const realIp = forwardedFor[forwardedFor.length - 1];
 
-    // handle no user response captcha token
+    // handle no captcha token (probably an attempt to upload to directly to the API?)
     if (!req.body.cToken) {
       return res.status(422).json({
         message: 'no captcha token provided',
@@ -46,7 +46,8 @@ exports.postImage = async (req, res, next) => {
         default:
           return res.status(500).json({
             code: 'UNKOWN',
-            message: 'An unknown error occured'
+            message: 'An unknown error occured',
+            error: err
           });
       }
     } else {

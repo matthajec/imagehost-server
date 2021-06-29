@@ -11,6 +11,7 @@ s3 = new aws.S3();
 
 const fileFilter = (req, file, cb) => {
   if (
+    // make sure the files mimetype is supported
     file.mimetype === 'image/jpeg' ||
     file.mimetype === 'image/png' ||
     file.mimetype === 'image/webp' ||
@@ -36,14 +37,14 @@ const upload = multer({
     metadata: function (req, file, cb) {
       cb(null, { fieldName: "TESTING_METADATA" });
     },
-    key: (req, file, cb) => {
+    key: (req, file, cb) => { // set the filename
       cb(null, Date.now().toString() + path.extname(file.originalname));
     },
-    contentType: (req, file, cb) => {
+    contentType: (req, file, cb) => { // set the content type, since mimetype has been validated we can use it
       cb(null, file.mimetype);
     }
   }),
-  limits: { fileSize: 2100000 }
+  limits: { fileSize: 2100000 } // limit the file size to 2,1000,000 bytes
 });
 
 
